@@ -1,0 +1,135 @@
+/* Import Poppins font from Google Fonts, including various font weights and styles */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+/* Define global CSS variables for reusing colors and shadow styles */
+
+/* theme default */
+:root {
+  --icons-color: #4c5773;
+  --icons-light-color: #4c577341;
+  --icons-bg-color: #e2e6e9;
+  --shadow-dark-color: #d3dae7;
+  --shadow-light-color: #fff;
+  --main-bg-color: #ecf0f3;
+  --overlay: #7b8292;
+  --box-shadow: 1rem 1rem 1rem var(--shadow-dark-color),
+    -1rem -1rem 1rem var(--shadow-light-color);
+  --box-shadow-2: 0rem 0rem 0rem var(--shadow-dark-color),
+    -0.3rem -0.3rem 1rem var(--shadow-dark-color);
+}
+
+/* theme dark */
+.dark-mode {
+  --icons-color: #facc15;
+  --icons-light-color: #facc1541;
+  --icons-bg-color: #333a4e;
+  --shadow-dark-color: #3f4761;
+  --shadow-light-color: #333a4e;
+  --main-bg-color: #222734;
+  --overlay: #111d3a;
+  --box-shadow: 1rem 1rem 1rem var(--shadow-dark-color),
+    -1rem -1rem 1rem var(--shadow-light-color);
+  --box-shadow-2: 0rem 0rem 0rem var(--shadow-dark-color),
+    -0.3rem -0.3rem 1rem var(--shadow-dark-color);
+
+  /* Dark mode styles, adapting to the user's system settings */
+  @media (prefers-color-scheme: dark) {
+    /* Set global color scheme to dark */
+    html {
+      color-scheme: dark;
+    }
+
+    /* Body styles for dark mode */
+    body {
+      /* Set text color to white */
+      color: white;
+
+      /* Set background color to black */
+      background: var(--main-bg-color);
+    }
+  }
+}
+
+.dark-mode input,
+.dark-mode textarea {
+  color: #facc15;
+}
+
+/* Basic page styles: set font, colors, and background */
+html,
+body {
+  /* Remove default padding and margin */
+  padding: 0;
+  margin: 0;
+
+  /* Use Poppins font, fallback to sans-serif */
+  font-family: "Poppins", sans-serif;
+
+  /* Set the global font size */
+  font-size: 14px;
+
+  /* Use the defined background and text color variables */
+  background-color: var(--main-bg-color);
+  color: var(--icons-color);
+}
+
+body {
+  padding-top: 140px; /* 设置为导航栏的高度 */
+}
+
+/* Link styles: remove default color and underline */
+a {
+  /* Inherit text color from parent */
+  color: inherit;
+
+  /* Remove underline */
+  text-decoration: none;
+}
+
+/* Apply box-sizing and tap highlight removal to all elements */
+* {
+  /* Set box-sizing to border-box, ensuring padding and border are included in element's width */
+  box-sizing: border-box;
+
+  /* Disable tap highlight effect on touch devices */
+  -webkit-tap-highlight-color: none;
+}
+
+/* Styles for selected text */
+::selection {
+  /* Set selected text color */
+  color: var(--shadow-dark-color);
+
+  /* Set selected text background color */
+  background: var(--icons-color);
+}
+
+/* Custom scrollbar styles for Webkit browsers (like Chrome, Safari) */
+::-webkit-scrollbar {
+  /* Set scrollbar width */
+  width: 1rem;
+
+  /* Add a border matching the background color */
+  border: 1px solid var(--main-bg-color);
+}
+
+/* Scrollbar track (background) style */
+::-webkit-scrollbar-track {
+  /* No border radius */
+  border-radius: 0;
+
+  /* Set track background color to the main background color */
+  background-color: var(--main-bg-color);
+}
+
+/* Scrollbar thumb (the part that moves) style */
+::-webkit-scrollbar-thumb {
+  /* Add rounded corners for a smoother appearance */
+  border-radius: 2rem;
+
+  /* Set thumb background color to the primary icon color */
+  background: var(--icons-color);
+
+  /* Set thumb width to 0.5rem */
+  width: 0.5rem;
+}
