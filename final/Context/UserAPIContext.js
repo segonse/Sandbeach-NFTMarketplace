@@ -23,7 +23,7 @@ export const UserAPIProvider = ({ children }) => {
 
   const router = useRouter();
 
-  const endPoint = process.env.NEXT_PUBLIC_API_END_POINT;
+  const endPoint = process.env.NEXT_PUBLIC_API_END_POINT_USER;
 
   const signUp = async (userData) => {
     // const res = await axios.post(endPoint + "signUp", userData);
