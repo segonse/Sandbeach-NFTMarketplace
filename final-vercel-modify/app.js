@@ -11,11 +11,13 @@ import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import hpp from "hpp";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import AppError from "./API/Utils/appError.js";
 import globalErrorHandler from "./API/controllers/errorController.js";
 import nftsRouter from "./API/routes/nftsRoute.js";
 import usersRouter from "./API/routes/usersRoute.js";
+import connectDB from "./API/Utils/dbConnect.js";
 
 const app = express();
 
@@ -26,6 +28,12 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in an hour!",
 });
 app.use("/api", limiter);
+
+// CORS
+app.use(cors());
+
+// DATABASE CONNECTION
+await connectDB();
 
 // BODY PARSER
 app.use(express.json({ limit: "10kb" }));
@@ -81,5 +89,18 @@ app.all("/api/*", (req, res, next) => {
 
 // GLOBAL ERROR HANDLER
 app.use(globalErrorHandler);
+
+// UNHANDLED REJECTION
+process.on("uncaughtException", (err) => {
+  console.log(err.name, err.message);
+  console.log("UNCAUGHT EXCEPTION! Shutting down...");
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message);
+  console.log("UNHANDLED REJECTION! Shutting down...");
+  process.exit(1);
+});
 
 export default app;
