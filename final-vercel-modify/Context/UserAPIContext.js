@@ -46,7 +46,9 @@ export const UserAPIProvider = ({ children }) => {
         router.push("/");
       }
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };
@@ -72,7 +74,9 @@ export const UserAPIProvider = ({ children }) => {
         router.push("/");
       }
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };
@@ -132,7 +136,9 @@ export const UserAPIProvider = ({ children }) => {
 
       router.push("/");
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };
@@ -147,7 +153,9 @@ export const UserAPIProvider = ({ children }) => {
 
       return url;
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };
@@ -168,7 +176,9 @@ export const UserAPIProvider = ({ children }) => {
 
       router.push("/aboutus");
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };
@@ -181,7 +191,9 @@ export const UserAPIProvider = ({ children }) => {
         return res.data;
       }
     } catch (error) {
-      setError(error.response.data.message);
+      error.response
+        ? setError(error.response.data.message)
+        : setError(error.message);
       setOpenError(true);
     }
   };

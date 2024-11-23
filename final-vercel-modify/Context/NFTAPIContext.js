@@ -17,7 +17,7 @@ export const NFTAPIProvider = ({ children }) => {
 
       return res.data;
     } catch (error) {
-      setError(error.response.data.message);
+      setError(error.response?.data.message);
       setOpenError(true);
     }
   };
@@ -33,7 +33,7 @@ export const NFTAPIProvider = ({ children }) => {
         startDates: Date.now(),
       });
     } catch (error) {
-      setError(error.response.data.message);
+      setError(error.response?.data.message);
       setOpenError(true);
     }
   };
@@ -44,7 +44,7 @@ export const NFTAPIProvider = ({ children }) => {
 
       return res.data;
     } catch (error) {
-      setError(error.response.data.message);
+      setError(error.response?.data.message);
       setOpenError(true);
     }
   };

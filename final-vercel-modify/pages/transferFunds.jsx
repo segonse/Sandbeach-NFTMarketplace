@@ -48,10 +48,11 @@ const transferFunds = () => {
             <h2>Now you can transfer ether</h2>
             <div className={Style.transfer_box_box_right_info}>
               <p className={Style.transfer_box_box_right_info_desktop}>
-                Account: {currentAccount}
+                Account: {currentAccount || "Wallet Not Connect"}
               </p>
               <p className={Style.transfer_box_box_right_info_mobile}>
-                Account: {currentAccount.slice(1, 25) || "Wallet Not Connect"}..
+                Account: {currentAccount.slice(1, 25) || "Wallet Not Connect"}{" "}
+                {currentAccount && ".."}
               </p>
               <p>Balance: {accountBalance} ETH</p>
             </div>
