@@ -108,7 +108,7 @@
 .NFTCard_box_update_details_price {
   background-color: var(--shadow-light-color);
   margin-left: -3rem;
-  padding: 0rem 0 0.3rem 0;
+  /* padding: 0rem 0 0.3rem 0; */
   transform: skewX(45deg);
   border-top-right-radius: 1rem;
 }
@@ -152,6 +152,10 @@
   text-align: end;
   margin: 1.5rem;
   font-size: 1.5rem;
+}
+
+.NFTCard_box_update_details_price_box_stock {
+  padding-bottom: 1rem;
 }
 
 @media screen and (min-device-width: 320px) and (max-device-width: 620px) {

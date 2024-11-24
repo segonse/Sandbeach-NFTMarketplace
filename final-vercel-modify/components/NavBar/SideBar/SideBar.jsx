@@ -79,7 +79,7 @@ const SideBar = ({ setOpenSideMenu, NFTMarketplaceContext }) => {
       />
 
       <div className={Style.sideBar_box}>
-        <Image src={images.sandbeachIcon} alt="logo" height={130} width={130} />
+        <Image src={images.logo} alt="logo" height={130} width={130} />
         <p>
           Discover most outstanding articles on all topices of NFT & your own
           stories and share them

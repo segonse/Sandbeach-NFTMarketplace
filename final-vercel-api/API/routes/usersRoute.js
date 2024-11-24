@@ -10,8 +10,8 @@ import {
   resetPassword,
   updatePassword,
   protect,
-  checkAuthByCookie,
-  logout,
+  // checkAuthByCookie,
+  // logout,
 } from "../controllers/authController.js";
 import {
   getAllUsers,
@@ -22,7 +22,7 @@ import {
   updateMe,
   deleteMe,
   uploadUserPhoto,
-  getUserInfoByName
+  getUserInfoByName,
 } from "../controllers/userController.js";
 
 const usersRouter = express.Router();
@@ -45,27 +45,35 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // ROUTER AUTH
 usersRouter.post("/signup", signUp);
 usersRouter.post("/login", login);
-usersRouter.get(
-  "/checkAuthByCookie",
-  checkAuthByCookie,
-  protect,
-  (req, res) => {
-    res.status(200).json({
-      status: "success",
-      data: {
-        user: req.user,
-      },
-    });
-  }
-);
-usersRouter.get("/logout", logout);
+// usersRouter.get(
+//   "/checkAuthByCookie",
+//   checkAuthByCookie,
+//   protect,
+//   (req, res) => {
+//     res.status(200).json({
+//       status: "success",
+//       data: {
+//         user: req.user,
+//       },
+//     });
+//   }
+// );
+usersRouter.get("/checkAuth", protect, (req, res) => {
+  res.status(200).json({
+    status: "success",
+    data: {
+      user: req.user,
+    },
+  });
+});
+// usersRouter.get("/logout", logout);
 
 usersRouter.post("/forgotPassword", forgotPassword);
 usersRouter.patch("/resetPassword/:token", resetPassword);
 usersRouter.patch("/updateMyPassword", protect, updatePassword);
 
 // ROUTER USERS
-usersRouter.patch("/updateMe", checkAuthByCookie, protect, updateMe);
+usersRouter.patch("/updateMe", protect, updateMe);
 usersRouter.delete("/deleteMe", protect, deleteMe);
 // usersRouter.post(
 //   "/uploadUserPhoto",
@@ -75,8 +83,7 @@ usersRouter.delete("/deleteMe", protect, deleteMe);
 //   uploadUserPhoto
 // );
 
-usersRouter.get("/getUserInfoByName/:name",getUserInfoByName)
-
+usersRouter.get("/getUserInfoByName/:name", getUserInfoByName);
 
 usersRouter.route("/").get(getAllUsers).post(createUser);
 usersRouter

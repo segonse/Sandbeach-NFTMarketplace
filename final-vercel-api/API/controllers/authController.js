@@ -17,17 +17,18 @@ const signToken = (id) => {
 export const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
-  const cookieOptions = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-    // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-  };
+  // const cookieOptions = {
+  //   expires: new Date(
+  //     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  //   ),
+  //   httpOnly: true,
+  // };
 
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === "production") {
+  //   cookieOptions.secure = true;
+  // }
 
-  res.cookie("jwt", token, cookieOptions);
+  // res.cookie("jwt", token, cookieOptions);
 
   user.password = undefined;
 
@@ -111,14 +112,14 @@ export const protect = catchAsync(async (req, res, next) => {
 });
 
 // RETURN USER
-export const checkAuthByCookie = (req, res, next) => {
-  if (req.cookies && req.cookies.jwt) {
-    req.headers.authorization = "Bearer " + req.cookies.jwt;
-    next();
-  } else {
-    return next(new AppError("JWT cookie missing. Please login.", 401));
-  }
-};
+// export const checkAuthByCookie = (req, res, next) => {
+//   if (req.cookies && req.cookies.jwt) {
+//     req.headers.authorization = "Bearer " + req.cookies.jwt;
+//     next();
+//   } else {
+//     return next(new AppError("JWT cookie missing. Please login.", 401));
+//   }
+// };
 
 // IDENTITY RESTRICT
 export const restrictTo = (...roles) => {
@@ -220,15 +221,15 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-export const logout = (req, res) => {
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    // secure: true,
-    // sameSite: 'strict',
-  });
+// export const logout = (req, res) => {
+//   res.clearCookie("jwt", {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === "production",
+//     sameSite: "None",
+//   });
 
-  res.status(200).json({
-    status: "success",
-    message: "User logged out successfully",
-  });
-};
+//   res.status(200).json({
+//     status: "success",
+//     message: "User logged out successfully",
+//   });
+// };

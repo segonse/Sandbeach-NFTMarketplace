@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { PinataSDK } from "pinata";
 
 const pinata = new PinataSDK({
-  pinataJwt: process.env.NEXT_PUBLIC_PINITA_JWT,
+  pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
   pinataGateway: process.env.NEXT_PUBLIC_PINATA_GATEWAY,
 });
 
@@ -28,15 +28,14 @@ export const UserAPIProvider = ({ children }) => {
   const signUp = async (userData) => {
     // const res = await axios.post(endPoint + "signUp", userData);
     try {
-      const res = await axios.post(endPoint + "signUp", userData, {
-        withCredentials: true,
-      });
+      const res = await axios.post(endPoint + "signUp", userData);
 
       if (res.data.status === "success") {
         setIsLogged(true);
         // setIsAdmin(res.data.role === "admin");
-
         setUsername(res.data.data.user.name);
+
+        localStorage.setItem("token", res.data.token);
 
         if (res.data.data.user.photo) {
           const imageUrl = await getUserPhotoUrl(res.data.data.user.photo);
@@ -55,15 +54,14 @@ export const UserAPIProvider = ({ children }) => {
 
   const login = async (userData) => {
     try {
-      const res = await axios.post(endPoint + "login", userData, {
-        withCredentials: true,
-      });
+      const res = await axios.post(endPoint + "login", userData);
 
       if (res.data.status === "success") {
         setIsLogged(true);
         // setIsAdmin(res.data.role === "admin");
-
         setUsername(res.data.data.user.name);
+
+        localStorage.setItem("token", res.data.token);
 
         if (res.data.data.user.photo) {
           const imageUrl = await getUserPhotoUrl(res.data.data.user.photo);
@@ -81,11 +79,9 @@ export const UserAPIProvider = ({ children }) => {
     }
   };
 
-  const checkAuthByCookie = async (firstCheck) => {
+  const checkLogin = async (firstCheck) => {
     try {
-      const res = await axios.get(endPoint + "checkAuthByCookie", {
-        withCredentials: true,
-      });
+      const res = await axios.get(endPoint + "checkAuth");
       if (res.data.status === "success") {
         setIsLogged(true);
         setUsername(res.data.data.user.name);
@@ -107,8 +103,16 @@ export const UserAPIProvider = ({ children }) => {
     }
   };
 
+  // In this provider will act on all requests globally
   useEffect(() => {
-    checkAuthByCookie(true);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
+    checkLogin(true);
   }, []);
 
   // Mongo save user photo cid(pinata)
@@ -126,13 +130,7 @@ export const UserAPIProvider = ({ children }) => {
 
       const upload = await pinata.upload.file(image);
 
-      await axios.patch(
-        endPoint + "updateMe",
-        { photo: upload.cid },
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.patch(endPoint + "updateMe", { photo: upload.cid });
 
       router.push("/");
     } catch (error) {
@@ -164,17 +162,19 @@ export const UserAPIProvider = ({ children }) => {
     try {
       e.preventDefault();
 
-      const res = await axios.get(endPoint + "/logout", {
-        withCredentials: true,
-      });
+      // const res = await axios.get(endPoint + "logout", {
+      //   withCredentials: true,
+      // });
 
-      if (res.data.status === "success") {
-        setIsLogged(false);
-        setUsername("");
-        setUserPhoto("");
-      }
+      // if (res.data.status === "success") {
+      //   setIsLogged(false);
+      //   setUsername("");
+      //   setUserPhoto("");
+      // }
 
-      router.push("/aboutus");
+      localStorage.removeItem("token");
+
+      window.location.href = "/aboutus";
     } catch (error) {
       error.response
         ? setError(error.response.data.message)
@@ -211,7 +211,7 @@ export const UserAPIProvider = ({ children }) => {
         openError,
         setOpenError,
         endPoint,
-        checkAuthByCookie,
+        // checkAuthByCookie,
         logout,
         getUserInfoByName,
         getUserPhotoUrl,

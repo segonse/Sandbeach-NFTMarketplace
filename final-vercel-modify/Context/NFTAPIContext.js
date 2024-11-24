@@ -9,11 +9,11 @@ export const NFTAPIProvider = ({ children }) => {
 
   const endPoint = process.env.NEXT_PUBLIC_API_END_POINT_NFT;
 
+ 
+
   const createNFT = async (nftData) => {
     try {
-      const res = await axios.post(endPoint, nftData, {
-        withCredentials: true,
-      });
+      const res = await axios.post(endPoint, nftData);
 
       return res.data;
     } catch (error) {
@@ -51,7 +51,14 @@ export const NFTAPIProvider = ({ children }) => {
 
   return (
     <NFTAPIContext.Provider
-      value={{ createNFT, createSale, error, openError, setOpenError,getNFTInfoByName }}
+      value={{
+        createNFT,
+        createSale,
+        error,
+        openError,
+        setOpenError,
+        getNFTInfoByName,
+      }}
     >
       {children}
     </NFTAPIContext.Provider>

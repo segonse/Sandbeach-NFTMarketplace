@@ -17,7 +17,7 @@ import { NFTAPIContext } from "./NFTAPIContext";
 
 // TODO: save in env
 const pinata = new PinataSDK({
-  pinataJwt: process.env.NEXT_PUBLIC_PINITA_JWT,
+  pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
   pinataGateway: process.env.NEXT_PUBLIC_PINATA_GATEWAY,
 });
 
@@ -64,6 +64,72 @@ const connectToTransferFunds = async () => {
   }
 };
 
+//// Switch wallet connect chain
+// const celoProviderOptions = {
+//   walletconnect: {
+//     options: {
+//       rpc: {
+//         42220: process.env.NEXT_PUBLIC_CELO_RPC_URL, // CELO Mainnet RPC URL
+//       },
+//     },
+//   },
+// };
+
+const switchToTargetChain = async (chainId, provider, connection) => {
+  try {
+    await connection.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: `0x${chainId.toString(16)}` }], // 转为十六进制
+    });
+    console.log("Switch to target chain successful");
+  } catch (error) {
+    // If the user's wallet does not add the chain, try adding the chain
+    if (error.code === 4902) {
+      try {
+        await connection.request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: `0x${chainId.toString(16)}`,
+              chainName: "Celo Mainnet",
+              rpcUrls: [process.env.NEXT_PUBLIC_CELO_RPC_URL],
+              nativeCurrency: {
+                name: "CELO",
+                symbol: "CELO",
+                decimals: 18,
+              },
+              blockExplorerUrls: ["https://explorer.celo.org"],
+            },
+          ],
+        });
+
+        console.log("The target chain has been added and switched");
+        return (provider = new ethers.BrowserProvider(connection));
+      } catch (addError) {
+        console.error("Failed to add chain: ", addError);
+      }
+    } else {
+      console.error("Switch chain failure: ", error);
+    }
+  }
+};
+
+const switchToCelo = async (provider, connection) => {
+  const network = await provider.getNetwork();
+  const celoChainId = 42220;
+  console.log(
+    "Current chain: ",
+    Number(network.chainId),
+    ", target chain: ",
+    celoChainId
+  );
+  if (Number(network.chainId) !== celoChainId) {
+    await switchToTargetChain(celoChainId, provider, connection);
+  } else {
+    console.log("The current chain ID is the same as the CELO chain ID");
+  }
+};
+
 // Create context
 export const NFTMarketplaceContext = React.createContext();
 
@@ -94,16 +160,13 @@ export const NFTMarketplaceProvider = ({ children }) => {
         setCurrentAccount(accounts[0]);
 
         const provider = new ethers.BrowserProvider(window.ethereum);
+        await switchToCelo(provider, window.ethereum);
         const getBalance = await provider.getBalance(accounts[0]);
         setAccountBalance(ethers.formatEther(getBalance));
       } else {
-        // setOpenError(true);
-        // setError("No Account Found");
         console.log("No Account Found");
       }
     } catch (error) {
-      // setError("Something went wrong while check if wallet connected");
-      // setOpenError(true);
       console.log(
         "Something went wrong while check if wallet connected: " + error.message
       );
@@ -147,14 +210,10 @@ export const NFTMarketplaceProvider = ({ children }) => {
     const updateWallet = async () => {
       try {
         if (isLogged && currentAccount) {
-          await axios.patch(
-            endPoint + "updateMe",
-            {
-              recentWalletAddress: currentAccount,
-              historyWalletAddress: currentAccount,
-            },
-            { withCredentials: true }
-          );
+          await axios.patch(endPoint + "updateMe", {
+            recentWalletAddress: currentAccount,
+            historyWalletAddress: currentAccount,
+          });
         }
       } catch (error) {
         console.error("Failed to update wallet address:" + error);
@@ -173,11 +232,19 @@ export const NFTMarketplaceProvider = ({ children }) => {
       });
       setCurrentAccount(accounts[0]);
       // window.location.reload();
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await switchToCelo(provider, window.ethereum);
+      const getBalance = await provider.getBalance(accounts[0]);
+      setAccountBalance(ethers.formatEther(getBalance));
     } catch (error) {
-      setError(
-        "Something went wrong while connecting wallet: " + error.message
+      // setError(
+      //   "Something went wrong while connecting wallet: " + error.message
+      // );
+      // setOpenError(true);
+      console.log(
+        "Something went wrong while check if wallet connected: " + error.message
       );
-      setOpenError(true);
     }
   };
 
@@ -185,7 +252,7 @@ export const NFTMarketplaceProvider = ({ children }) => {
   const uploadToIPFS = async (file) => {
     try {
       const upload = await pinata.upload.file(file);
-      const url = `https://aqua-immense-possum-858.mypinata.cloud/ipfs/${upload.IpfsHash}`;
+      const url = `https://${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${upload.IpfsHash}`;
       return url;
     } catch (error) {
       setError("Error while uploading to IPFS: " + error.message);
@@ -202,7 +269,7 @@ export const NFTMarketplaceProvider = ({ children }) => {
     // upload NFT json file
     try {
       const upload = await pinata.upload.json({ name, description, image });
-      const url = `https://aqua-immense-possum-858.mypinata.cloud/ipfs/${upload.IpfsHash}`;
+      const url = `https://${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${upload.IpfsHash}`;
 
       await createNFTAPI({
         name,
@@ -248,7 +315,9 @@ export const NFTMarketplaceProvider = ({ children }) => {
 
   const fetchNFTs = async (formInput, fileUrl, router) => {
     try {
-      const provider = new ethers.JsonRpcProvider();
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_CELO_RPC_URL
+      );
       const contract = fecthContarct(provider);
 
       const data = await contract.getMarketItems();
@@ -260,7 +329,11 @@ export const NFTMarketplaceProvider = ({ children }) => {
 
             const {
               data: { image, name, description },
-            } = await axios.get(tokenURI);
+            } = await axios.get(tokenURI, {
+              headers: {
+                Authorization: undefined, // 移除 Authorization 头
+              },
+            });
             const price = ethers.formatEther(unformattedPrice.toString());
 
             return {
@@ -304,7 +377,11 @@ export const NFTMarketplaceProvider = ({ children }) => {
 
             const {
               data: { image, name, description },
-            } = await axios.get(tokenURI);
+            } = await axios.get(tokenURI, {
+              headers: {
+                Authorization: undefined, // 移除 Authorization 头
+              },
+            });
             const price = ethers.formatEther(unformattedPrice.toString());
 
             return {

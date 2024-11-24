@@ -45,12 +45,24 @@ app.use("/api", limiter);
 app.set("trust proxy", 1);
 
 // CORS
-app.use(
-  cors({
-    origin: "https://sandbeach-nftmarketplace.vercel.app/",
-    credentials: true,
-  })
-);
+// const allowedOrigins = [
+//   "http://localhost:3000",
+//   "https://sandbeach-nftmarketplace.vercel.app",
+//   "https://www.sandbeach-nftmarketplace.vercel.app",
+// ];
+
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
 
 // DATABASE CONNECTION
 await connectDB();
